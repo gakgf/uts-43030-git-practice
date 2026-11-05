@@ -1,0 +1,17 @@
+name: Vowel frequency analyzer
+description: Analyze a UTF-8 file and append actual vowel counts to a report
+inputs:
+  file:
+    description: Input path relative to the checkout
+    required: true
+  readme:
+    description: Report path relative to the checkout
+    default: practicals/lecture3/README.md
+runs:
+  using: docker
+  image: Dockerfile
+  env:
+    FILE: ${{ inputs.file }}
+    README_PATH: ${{ inputs.readme }}
+    GITHUB_USER: ${{ github.actor }}
+    SOURCE_SHA: ${{ github.sha }}
