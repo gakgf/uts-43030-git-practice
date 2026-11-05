@@ -1,0 +1,1 @@
+Soft reset practice: keep staged content while moving only this unpublished branch.

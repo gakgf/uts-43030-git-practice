@@ -1,1 +1,2 @@
 A quick example: AEIOU, aeiou!
+Simulated member 2 contributes: Education and automation.
