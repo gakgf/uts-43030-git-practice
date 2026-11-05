@@ -1,0 +1,27 @@
+name: Lecture 3 - publish and verify GHCR image
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Publish course image to GHCR
+        env:
+          REGISTRY_TOKEN: ${{ github.token }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          set -euo pipefail
+          image=ghcr.io/gakgf/uts-43030-vowel-frequency:lecture3
+          printf '%s' "$REGISTRY_TOKEN" | docker login ghcr.io -u "$ACTOR" --password-stdin
+          docker build --provenance=false --label org.opencontainers.image.source=https://github.com/gakgf/uts-43030-git-practice -t "$image" practicals/lecture3
+          docker push "$image"
+          docker image rm "$image"
+          docker pull "$image"
+          docker run --rm -v "$PWD:/workspace" -w /workspace -e GITHUB_USER="$ACTOR" -e FILE=practicals/lecture3/data.txt -e README_PATH=practicals/lecture3/README.md "$image"
+          docker logout ghcr.io

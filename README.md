@@ -21,9 +21,9 @@ The container writes only its designated report in the mounted checkout. Git com
 
 ## Implementation provenance and differences from slides
 
-Code is an implementation of the supplied activity descriptions assisted by Codex. Canvas starter scripts were not supplied at initial implementation. No additional team members or reviews are represented by these files.
+Code is an implementation of the supplied activity descriptions assisted by Codex. The student confirmed Canvas starter scripts were unavailable and authorized single-person simulated team roles. All actions use the real gakgf account. No additional real team members or independent reviews are represented by these files.
 
-Both Docker exercises have separate build contexts so their Dockerfiles, entrypoints and reports coexist. Python 3.13 and checkout v6 replace the older slide examples. The Lecture 3 action builds its local Dockerfile rather than assuming an unavailable pre-published GHCR image. Publishing and testing a GHCR-hosted variant remains a separate extension if required by the assessor.
+Both Docker exercises have separate build contexts so their Dockerfiles, entrypoints and reports coexist. Python 3.13 and checkout v6 replace the older slide examples. The Lecture 3 action uses the approved public GHCR image pinned to its verified SHA-256 digest. The workflow also separately builds and runs the local Dockerfile. The manual publish-vowel-ghcr.yml workflow publishes a single-platform image and verifies a fresh pull/run; updating code in that image requires publishing a new version and intentionally updating the pinned digest.
 
 Only overlapping edits cause merge/rebase conflicts. Editing different files by different members alone does not guarantee a conflict. Reset/rebase demonstrations use isolated unpublished branches, keeping main history intact. No old feature branches are deleted.
 
