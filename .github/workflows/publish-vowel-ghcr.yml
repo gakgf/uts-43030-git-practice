@@ -1,7 +1,5 @@
 name: Lecture 3 - publish and verify GHCR image
 on:
-  push:
-    branches: [practicals/ghcr-publish]
   workflow_dispatch:
 permissions:
   contents: read

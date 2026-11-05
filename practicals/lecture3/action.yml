@@ -15,7 +15,7 @@ inputs:
     required: true
 runs:
   using: docker
-  image: Dockerfile
+  image: docker://ghcr.io/gakgf/uts-43030-vowel-frequency@sha256:db65854254b1fcd50038d482d63cd15c31e5f0a71ae29a0fcbb48a3918efb58e
   env:
     FILE: ${{ inputs.file }}
     README_PATH: ${{ inputs.readme }}
