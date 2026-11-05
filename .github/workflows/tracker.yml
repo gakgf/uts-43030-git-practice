@@ -1,0 +1,29 @@
+name: Lecture 4 - linked issue tracker
+on:
+  pull_request:
+    types: [closed]
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+jobs:
+  move-issue-to-done:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify linked issues are closed for Projects automation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          issues=$(gh pr view "$PR_NUMBER" --repo "$GH_REPO" --json closingIssuesReferences --jq '.closingIssuesReferences[].number')
+          if [ -z "$issues" ]; then
+            echo 'No closing issue references; no project update required.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          for issue in $issues; do
+            state=$(gh issue view "$issue" --repo "$GH_REPO" --json state --jq '.state')
+            test "$state" = CLOSED
+            printf 'Issue #%s is CLOSED. The configured Projects issue-closed workflow sets Status to Done.\n' "$issue" >> "$GITHUB_STEP_SUMMARY"
+          done

@@ -1,0 +1,34 @@
+name: Lecture 2 - update HTML and README
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: practical-report-writers
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - name: Update the team leader's HTML and README entries
+        if: github.actor == 'gakgf'
+        env:
+          ACTOR: ${{ github.actor }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: python3 .github/scripts/update_activity.py
+      - name: Commit generated changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html README.md
+          if ! git diff --cached --quiet; then
+            git commit -m 'Workflow: update HTML and README activity log'
+            git push origin HEAD:main
+          fi

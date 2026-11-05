@@ -1,0 +1,90 @@
+name: Lectures 3 and 4 - Docker CI
+on:
+  push:
+    branches: [main, 'practicals/**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: practical-report-writers
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build Lecture 3 Docker image
+        run: docker build -t vowel-frequency-analyzer:latest practicals/lecture3
+      - name: Run Lecture 3 Docker image
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: >-
+          docker run --rm -v "$PWD:/workspace" -w /workspace
+          -e GITHUB_USER -e SOURCE_SHA -e FILE=practicals/lecture3/data.txt
+          -e README_PATH=practicals/lecture3/README.md vowel-frequency-analyzer:latest
+      - name: Verify reusable Docker action
+        uses: ./practicals/lecture3
+        with:
+          file: practicals/lecture3/data.txt
+          actor: ${{ github.actor }}
+          source-sha: ${{ github.sha }}
+      - name: Verify vowel edge cases
+        run: |
+          python3 - <<'PY'
+          import importlib.util, tempfile
+          from pathlib import Path
+          spec = importlib.util.spec_from_file_location('frequency', 'practicals/lecture3/frequency.py')
+          module = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          with tempfile.TemporaryDirectory() as directory:
+              sample = Path(directory) / 'sample.txt'
+              sample.write_text('AaEeIiOoUu XYZ! 123', encoding='utf-8')
+              assert module.count_vowels(sample) == dict.fromkeys('aeiou', 2)
+              sample.write_text('', encoding='utf-8')
+              assert module.count_vowels(sample) == dict.fromkeys('aeiou', 0)
+              try:
+                  module.count_vowels(Path(directory) / 'missing.txt')
+              except FileNotFoundError:
+                  pass
+              else:
+                  raise AssertionError('Missing input must fail')
+          PY
+      - name: Build Lecture 4 Docker image
+        run: docker build -t task-manager:latest practicals/lecture4
+      - name: Run Lecture 4 tests and generate HTML report
+        run: >-
+          docker run --rm -v "$PWD:/workspace" -w /workspace
+          -e REPORT_PATH=practicals/lecture4/index.html task-manager:latest
+      - name: Check report contents
+        run: |
+          grep -q 'Ran 5 tests' practicals/lecture4/index.html
+          grep -q 'OK' practicals/lecture4/index.html
+  publish-reports:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - name: Build and run report containers
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          docker build -t vowel-frequency-analyzer:latest practicals/lecture3
+          docker run --rm -v "$PWD:/workspace" -w /workspace -e GITHUB_USER -e SOURCE_SHA -e FILE=practicals/lecture3/data.txt -e README_PATH=practicals/lecture3/README.md vowel-frequency-analyzer:latest
+          docker build -t task-manager:latest practicals/lecture4
+          docker run --rm -v "$PWD:/workspace" -w /workspace -e REPORT_PATH=practicals/lecture4/index.html task-manager:latest
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add practicals/lecture3/README.md practicals/lecture4/index.html
+          if ! git diff --cached --quiet; then
+            git commit -m 'Workflow: publish verified Docker analysis and task report'
+            git push origin HEAD:main
+          fi
