@@ -7,11 +7,17 @@ inputs:
   readme:
     description: Report path relative to the checkout
     default: practicals/lecture3/README.md
+  actor:
+    description: Actual triggering GitHub username
+    required: true
+  source-sha:
+    description: Source commit being analyzed
+    required: true
 runs:
   using: docker
   image: Dockerfile
   env:
     FILE: ${{ inputs.file }}
     README_PATH: ${{ inputs.readme }}
-    GITHUB_USER: ${{ github.actor }}
-    SOURCE_SHA: ${{ github.sha }}
+    GITHUB_USER: ${{ inputs.actor }}
+    SOURCE_SHA: ${{ inputs.source-sha }}

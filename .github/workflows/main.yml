@@ -17,7 +17,8 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: main
-      - name: Update the actual actor's HTML and README entries
+      - name: Update the team leader's HTML and README entries
+        if: github.actor == 'gakgf'
         env:
           ACTOR: ${{ github.actor }}
           SOURCE_SHA: ${{ github.sha }}

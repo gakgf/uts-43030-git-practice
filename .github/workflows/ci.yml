@@ -29,6 +29,8 @@ jobs:
         uses: ./practicals/lecture3
         with:
           file: practicals/lecture3/data.txt
+          actor: ${{ github.actor }}
+          source-sha: ${{ github.sha }}
       - name: Verify vowel edge cases
         run: |
           python3 - <<'PY'
