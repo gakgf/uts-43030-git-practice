@@ -60,7 +60,7 @@ jobs:
           -e REPORT_PATH=practicals/lecture4/index.html task-manager:latest
       - name: Check report contents
         run: |
-          grep -q 'Ran 5 tests' practicals/lecture4/index.html
+          grep -Eq 'Ran [0-9]+ tests' practicals/lecture4/index.html
           grep -q 'OK' practicals/lecture4/index.html
   publish-reports:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'

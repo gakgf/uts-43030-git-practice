@@ -27,6 +27,13 @@ class TestTaskPool(unittest.TestCase):
         self.assertEqual(self.pool.get_open_tasks(), [])
         self.assertEqual(self.pool.get_done_tasks(), [task])
 
+    def test_initial_done_status_is_consistent(self):
+        task = Task("Already completed", status="Done")
+        self.pool.add_task(task)
+        self.assertTrue(task.completed)
+        self.assertEqual(self.pool.get_done_tasks(), [task])
+        self.assertEqual(self.pool.get_open_tasks(), [])
+
     def test_task_representation(self):
         task = Task("Example")
         self.assertEqual(repr(task), "Example - ToDo")
