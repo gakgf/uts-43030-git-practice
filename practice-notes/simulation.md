@@ -7,3 +7,5 @@ All roles use the real gakgf account. Branch names identify simulated roles and 
 - Member 2: independently extends the text-analysis input in a subsequent branch.
 
 This records a learning simulation with Codex assistance, not actual multi-person review.
+
+Member 2 integrated the resolved rebase feature and reset notes with ordinary merges, preserving the generated HTML activity log. The analyzer input includes an additional real line for the next container run.
